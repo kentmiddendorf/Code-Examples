@@ -1,0 +1,112 @@
+/*        Sudoku is a number-placement puzzle. The objective is to fill a 9 × 9 grid with numbers in such a way that each column, each row, and each of the nine 3 × 3 sub-grids that compose the grid all contain all of the numbers from 1 to 9 one time.
+
+        Implement an algorithm that will check whether the given grid of numbers represents a valid Sudoku puzzle according to the layout rules described above. Note that the puzzle represented by grid does not have to be solvable.
+
+        Example
+
+        For
+
+        grid = [['.', '.', '.', '1', '4', '.', '.', '2', '.'],
+                ['.', '.', '6', '.', '.', '.', '.', '.', '.'],
+                ['.', '.', '.', '.', '.', '.', '.', '.', '.'],
+                ['.', '.', '1', '.', '.', '.', '.', '.', '.'],
+                ['.', '6', '7', '.', '.', '.', '.', '.', '9'],
+                ['.', '.', '.', '.', '.', '.', '8', '1', '.'],
+                ['.', '3', '.', '.', '.', '.', '.', '.', '6'],
+                ['.', '.', '.', '.', '.', '7', '.', '.', '.'],
+                ['.', '.', '.', '5', '.', '.', '.', '7', '.']]
+        the output should be
+        sudoku2(grid) = true;
+
+        For
+
+        grid = [['.', '.', '.', '.', '2', '.', '.', '9', '.'],
+                ['.', '.', '.', '.', '6', '.', '.', '.', '.'],
+                ['7', '1', '.', '.', '7', '5', '.', '.', '.'],
+                ['.', '7', '.', '.', '.', '.', '.', '.', '.'],
+                ['.', '.', '.', '.', '8', '3', '.', '.', '.'],
+                ['.', '.', '8', '.', '.', '7', '.', '6', '.'],
+                ['.', '.', '.', '.', '.', '2', '.', '.', '.'],
+                ['.', '1', '.', '2', '.', '.', '.', '.', '.'],
+                ['.', '2', '.', '.', '3', '.', '.', '.', '.']]
+        the output should be
+        sudoku2(grid) = false.
+*/
+
+boolean sudoku2(char[][] grid) {
+    char currentChar;
+    int currentRow;
+    int currentCol;
+
+    for (int i = 0; i < 9; i ++) {
+        currentRow = i;
+        for (int j = 0; j < 9; j ++) {
+            currentCol = j;
+            currentChar = grid [i][j];
+            if (currentChar != '.'){
+                if (rowChecker(grid, currentChar, currentRow)) {
+                    return false;
+                }
+                if (colChecker(grid, currentChar, currentCol)) {
+                    return false;
+                }
+                if (gridChecker(grid, currentChar, currentRow, currentCol)) {
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+// rowChecker returns true if a duplicate is found
+public boolean rowChecker (char[][] grid, char currentChar, int currentRow) {
+    int charCount = 0;
+    for (int i = 0; i < 9; i ++) {
+        if (grid[currentRow][i] == currentChar) {
+            charCount ++;
+        }
+        if (charCount > 1) {
+            System.out.println("row fail - char = " + currentChar + " row = " + currentRow
+            + " col = " + i);
+            return true;
+        }
+    }
+    return false;
+}
+
+// colChecker returns true if a duplicate is found
+public boolean colChecker (char[][] grid, char currentChar, int currentCol) {
+    int charCount = 0;
+    for (int i = 0; i < 9; i ++) {
+        if (grid[i][currentCol] == currentChar) {
+            charCount ++;
+        }
+        if (charCount > 1) {
+            System.out.println("col fail - char = " + currentChar + "row = " + i 
+            + " col = " + currentCol);
+            return true;
+        }
+    }
+    return false;
+}
+
+// gridChecker returns true if a duplicate is found
+public boolean gridChecker(char[][] grid, char currentChar, int currentRow, int currentCol) {
+    int charCount = 0;
+    int row = (currentRow / 3) * 3;
+    int col = (currentCol / 3) * 3;
+    System.out.println("row = " + row + " col = " + col);
+    for (int i = row; i < row + 3; i ++) {
+        for (int j = col; j < col + 3; j ++) {
+            if (grid[i][j] == currentChar) {
+                charCount ++;
+            }
+            if (charCount > 1) {
+            System.out.println("grid fail - char = " + currentChar + " row = " + currentRow
+            + " col = " + currentCol);
+                return true;
+            }
+        }
+    }
+    return false; 
+}
