@@ -1,0 +1,359 @@
+    // You job is to create a simple banking application.
+    // There should be a Bank class
+    // It should have an arraylist of Branches
+    // Each Branch should have an arraylist of Customers
+    // The Customer class should have an arraylist of Doubles (transactions)
+    // Customer:
+    // Name, and the ArrayList of doubles.
+    // Branch:
+    // Need to be able to add a new customer and initial transaction amount.
+    // Also needs to add additional transactions for that customer/branch
+    // Bank:
+    // Add a new branch
+    // Add a customer to that branch with initial transaction
+    // Add a transaction for an existing customer for that branch
+    // Show a list of customers for a particular branch and optionally a list
+    // of their transactions
+    // Demonstration autoboxing and unboxing in your code
+    // Hint: Transactions
+    // Add data validation.
+    // e.g. check if exists, or does not exist, etc.
+    // Think about where you are adding the code to perform certain actions
+    
+    
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class Main {
+
+    private static Scanner scanner = new Scanner(System.in);
+    private static Bank westBank = new Bank("West Bank");
+    private static String custEval = "Customer";
+    private static String branchEval = "Branch";
+    private static String transactionEval = "Transaction";
+
+    public static void main(String[] args) {
+
+        boolean quit = false;
+        int menuSelection = 0;
+
+        printInstructions();
+        
+// A simple menu loop
+
+        while (!(quit)) {
+
+            System.out.println("Enter your selection  -  6 for menu:");
+
+            if (scanner.hasNextInt()) {
+                menuSelection = scanner.nextInt();
+                scanner.nextLine();
+
+                switch (menuSelection) {
+
+                    case 1:
+                        addBranch();
+                        break;
+                    case 2:
+                        addCustomer();
+                        break;
+                    case 3:
+                        addTransaction();
+                        break;
+                    case 4:
+                        printCustomers();
+                        break;
+                    case 5:
+                        printTransactions();
+                        break;
+                    case 6:
+                        printInstructions();
+                        break;
+                    case 7:
+                        quitApplication();
+                        quit = true;
+                        break;
+                    default:
+                        menuSelectionError();
+                        break;
+                }
+            } else {
+                menuSelectionError();
+                scanner.nextLine();
+            }
+        }
+    }
+
+    private static void printInstructions() {
+        System.out.println("Bank Application Menu:");
+        System.out.println("\t1 - Add a branch.");
+        System.out.println("\t2 - Add a customer.");
+        System.out.println("\t3 - Add a transaction.");
+        System.out.println("\t4 - Print a list of customers.");
+        System.out.println("\t5 - Print a list of a customer's transactions.");
+        System.out.println("\t6 - RePrint these instructions.");
+        System.out.println("\t7 - Quit.");
+    }
+
+// add a new branch to existing bank
+
+     private static void addBranch() {
+        System.out.println("Enter the new Branch Name:");
+        String branchName = scanner.nextLine();
+        boolean branchAdded = westBank.addBranch(branchName);
+        evaluateMethod(branchAdded, branchEval, branchName);
+    }
+
+// add a new customer to a branch
+
+    private static void addCustomer() {
+        System.out.println("Enter Customer Name:");
+        String customerName = scanner.nextLine();
+        System.out.println("Enter initial deposit amount:");
+        double initialAmount = scanner.nextDouble();
+        boolean customerAdded = westBank.addCustomerToBranch(customerName, initialAmount);
+        evaluateMethod(customerAdded, custEval, customerName);
+    }
+
+// add a new transaction to a customer
+
+    private static void addTransaction() {
+        System.out.println("Enter Customer Name:");
+        String customerName = scanner.nextLine();
+        System.out.println("Enter Transaction Amount:");
+        double transAmount = scanner.nextDouble();
+        boolean transAdded = westBank.addTransactionToCustomerOfBranch(customerName, transAmount);
+        evaluateMethod(transAdded, transactionEval, "");
+    }
+
+// print a list of customer at a branch
+
+    private static void printCustomers() {
+        System.out.println("Enter Branch Name:");
+        String branchName = scanner.nextLine();
+        boolean customerPrinted = westBank.printCustomerList(branchName);
+        if (!(customerPrinted)) {
+            System.out.println("Customers NOT PRINTED!");
+        }
+    }
+
+// print a list of transactions for a customer
+
+    private static void printTransactions() {
+        System.out.println("Enter Customer Name:");
+        String customerName = scanner.nextLine();
+        boolean transPrinted = westBank.printCustomerTransactionList(customerName);
+        if (!(transPrinted)) {
+            System.out.println("Transactions NOT PRINTED!");
+        }
+    }
+
+    private static void quitApplication() {
+        System.out.println("Thank you.");
+        System.out.println("Application ending...");
+        scanner.close();
+    }
+
+    private static void menuSelectionError() {
+        System.out.println("Please enter a valid number from the menu:");
+        printInstructions();
+    }
+
+    private static void evaluateMethod(boolean isSuccessful, String evalType, String name) {
+        if(isSuccessful) {
+            System.out.println(evalType + ": " + name + " added.");
+        } else {
+            System.out.println(evalType + ": " + name + " NOT ADDED!");
+        }
+    }
+
+}
+
+public class Bank {
+
+    private String bankName;
+    private ArrayList<Branch> branches;
+    private Scanner scanner = new Scanner(System.in);
+
+    public Bank(String bankName) {
+        this.bankName = bankName;
+        this.branches = new ArrayList<Branch>();
+    }
+
+// add a branch to a bank
+
+    public boolean addBranch(String branchName) {
+        Branch branch = findBranch(branchName);
+        if (branch == null) {
+            branch = Branch.createBranch(branchName);
+            this.branches.add(branch);
+            return true;
+        }
+            return false;
+    }
+
+// add acustomer to a branch
+
+    public boolean addCustomerToBranch(String customerName, double initialAmount) {
+        System.out.println("Enter branch to add customer to:");
+        String branchName = scanner.nextLine();
+        Branch branch = findBranch(branchName);
+        if (branch != null) {
+            boolean customerAdded = branch.addCustomer(customerName, initialAmount);
+            if (customerAdded) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+// add a transaction to a customer's list
+
+    public boolean addTransactionToCustomerOfBranch(String customerName, double amount) {
+        System.out.println("Enter customer's branch name:");
+        String branchName = scanner.nextLine();
+        Branch branch = findBranch(branchName);
+        if (branch != null) {
+            return branch.addCustomerTransaction(customerName, amount);
+        }
+        return false;
+    }
+
+// print out a list of customer's transactions
+
+    public boolean printCustomerTransactionList(String customerName) {
+        System.out.println("Enter customer's branch name:");
+        String branchName = scanner.nextLine();
+        Branch branch = findBranch(branchName);
+        if (branch != null) {
+            boolean customerFound = branch.printCustomerTransactionList(customerName);
+            if (customerFound) {
+                return true;
+            }
+            System.out.println("Customer: " + customerName + " NOT FOUND!");
+            return false;
+        }
+        System.out.println("Branch: " + branchName + " NOT FOUND!");
+        return false;
+    }
+
+// print out a list of customers
+
+    public boolean printCustomerList(String branchName) {
+        Branch branch = findBranch(branchName);
+        if (branch != null) {
+            branch.printCustomerList();
+            return true;
+        }
+        return false;
+    }
+
+// find a branch by name
+
+    private Branch findBranch(String searchName) {
+        for (int i = 0; i < this.branches.size(); i ++) {
+            Branch branch = this.branches.get(i);
+            if (branch.getBranchName().equalsIgnoreCase(searchName)) {
+                return branch;
+            }
+        }
+        System.out.println("Branch not found.");
+        return null;
+    }
+}
+
+public class Branch {
+
+    private String branchName;
+    private ArrayList<Customer> customers;
+
+    public Branch(String branchName) {
+        this.branchName = branchName;
+        this.customers = new ArrayList<Customer>();
+    }
+
+    public String getBranchName() {
+        return branchName;
+    }
+
+    public boolean addCustomer(String customerName, double initialTransaction) {
+        Customer customer = findCustomer(customerName);
+        if (customer == null) {
+            customer = Customer.createCustomer(customerName, initialTransaction);
+            this.customers.add(customer);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean addCustomerTransaction(String customerName, double transactionAmount) {
+        Customer customer = findCustomer(customerName);
+        if (customer != null) {
+            customer.addTransaction(transactionAmount);
+            return true;
+        }
+        return false;
+    }
+
+    public void printCustomerList() {
+        System.out.println("Customer List for Branch: " + this.branchName);
+        for (int i = 0; i < this.customers.size(); i ++) {
+            System.out.println("\t" + (i + 1) + " - " + this.customers.get(i).getCustomerName());
+        }
+    }
+
+    public boolean printCustomerTransactionList (String customerName) {
+        Customer customer = findCustomer(customerName);
+        if (customer != null) {
+            customer.printTransactionList();
+            return true;
+        }
+        return false;
+    }
+
+    private Customer findCustomer(String customerName) {
+        for (int i = 0; i < this.customers.size(); i++) {
+            Customer searchCustomer = this.customers.get(i);
+            if (searchCustomer.getCustomerName().equalsIgnoreCase(customerName)) {
+                return searchCustomer;
+            }
+        }
+        System.out.println("Customer: " + customerName + " NOT FOUND!");
+        return null;
+    }
+
+    public static Branch createBranch(String branchName) {
+        return new Branch(branchName);
+    }
+}
+
+public class Customer {
+
+    private String customerName;
+    private ArrayList<Double> transactions;
+
+    public Customer(String name, double initialAmount) {
+        this.customerName = name;
+        this.transactions = new ArrayList<Double>();
+        addTransaction(initialAmount);
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public static Customer createCustomer (String name, double initialTransaction) {
+        return new Customer(name, initialTransaction);
+    }
+
+    public void printTransactionList() {
+        System.out.println("Transaction List for Customer: " + this.customerName);
+        for (int i = 0; i < this.transactions.size(); i ++) {
+            System.out.printf("\t[" + (i + 1) + "] $%.2f\n", this.transactions.get(i));
+        }
+    }
+
+    public void addTransaction (double amount) {
+        this.transactions.add(amount);
+    }
+}
